@@ -28,6 +28,7 @@ function BoardBar() {
     <Box
       sx={{
         overflowX: 'auto',
+        '&::-webkit-scrollbar-track': { m: 2 },
         width: '100%',
         height: (theme) => theme.trello.boardBarHeight,
         display: 'flex',
@@ -106,10 +107,13 @@ function BoardBar() {
               width: 34,
               height: 34,
               fontSize: 16,
-              border: 'none'
+              border: 'none',
+              color: 'white',
+              cursor: 'pointer',
+              '&:first-of-type': { bgcolor: '#a4b0be' }
             }
           }}
-          max={2}
+          max={4}
         >
           <Tooltip title='user_board'>
             <Avatar alt='user_board' src='/static/images/avatar/1.jpg' />

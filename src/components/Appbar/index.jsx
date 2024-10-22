@@ -34,7 +34,8 @@ function AppBar() {
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingX: 2,
-        gap: 2
+        gap: 2,
+        '&::-webkit-scrollbar-track': { m: 2 }
       }}
     >
       <Box
