@@ -7,7 +7,23 @@ import Typography from '@mui/material/Typography'
 import AttachmentIcon from '@mui/icons-material/Attachment'
 import CommentIcon from '@mui/icons-material/Comment'
 import GroupIcon from '@mui/icons-material/Group'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 function Card({ card }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id: card._id, data: { ...card } })
+
+  const dndKitCardStyles = {
+    transform: CSS.Translate.toString(transform), // Khúc này doc đang dùng CSS.Tranform nhưng sẽ lỗi stretch UI
+    transition,
+    opacity: isDragging ? 0.5 : undefined
+  }
   const shouldShowCardActions = () => {
     return (
       !!card?.memberIds?.length ||
@@ -17,6 +33,10 @@ function Card({ card }) {
   }
   return (
     <MuiCard
+      ref={setNodeRef}
+      style={dndKitCardStyles}
+      {...attributes}
+      {...listeners}
       sx={{
         overflow: 'unset',
         cursor: 'pointer',
