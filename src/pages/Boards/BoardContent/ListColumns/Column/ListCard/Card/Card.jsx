@@ -22,7 +22,8 @@ function Card({ card }) {
   const dndKitCardStyles = {
     transform: CSS.Translate.toString(transform), // Khúc này doc đang dùng CSS.Tranform nhưng sẽ lỗi stretch UI
     transition,
-    opacity: isDragging ? 0.5 : undefined
+    opacity: isDragging ? 0.5 : undefined,
+    border: isDragging ? '1px solid #3ecc71' : undefined
   }
   const shouldShowCardActions = () => {
     return (
