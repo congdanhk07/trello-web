@@ -90,19 +90,21 @@ function BoardContent({ board }) {
     // Đây là xử lý quá trình kéo, còn cập nhật thì phài handle ở DragEnd
     if (activeColumn._id !== overColumn._id) {
       setOrderedColumns((prevColumn) => {
+        // Handle logic xác định card vừa kéo qua sẽ nằm trên hay dưới overCard -> Copy từ thư viện trên github
+
+        // Xác định index của card bên column sắp drop
         const overCardIndex = overColumn?.cards?.findIndex(
           (card) => card._id === overCardId
         )
-        // Handle logic xác định card vừa kéo qua sẽ nằm trên hay dưới overCard -> Copy từ thư viện trên github
         let newCardIndex
         const isBelowOverItem =
           active.rect.current.translated &&
           active.rect.current.translated.top > over.rect.top + over.rect.height
         const modifier = isBelowOverItem ? 1 : 0
-        newCardIndex = overColumn
-        overCardIndex >= 0
-          ? overCardIndex + modifier
-          : overColumn?.cards?.length + 1
+        newCardIndex =
+          overCardIndex >= 0
+            ? overCardIndex + modifier
+            : overColumn?.cards?.length + 1
 
         // Clone orderredColumn cũ ra 1 cái mới để xử lý data rồi return - cập nhật state mới
         const nextColumns = cloneDeep(prevColumn)
@@ -132,7 +134,7 @@ function BoardContent({ board }) {
             0,
             activeDraggingCardData
           )
-          // CẬp nhật danh sách column mới
+          // Cập nhật danh sách column mới
           nextOverColumn.cardOrderIds = nextOverColumn.cards.map((c) => c._id)
         }
         return nextColumns
