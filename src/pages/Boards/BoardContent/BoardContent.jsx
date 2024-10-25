@@ -5,7 +5,8 @@ import {
   useSensor,
   useSensors,
   DragOverlay,
-  defaultDropAnimationSideEffects
+  defaultDropAnimationSideEffects,
+  closestCorners
 } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
 import Box from '@mui/material/Box'
@@ -49,6 +50,11 @@ function BoardContent({ board }) {
   const mySensors = useSensors(mouseSensor, touchSensor)
   const selectorArrayId = orderedColumns?.map((c) => c?._id)
 
+  const findColumnByCardId = (cardId) => {
+    return orderedColumns.find((column) =>
+      column?.cards?.some((card) => card._id === cardId)
+    )
+  }
   const handleDragStart = (event) => {
     setActiveDragItemId(event?.active?.id)
     setActiveDragItemType(
@@ -57,11 +63,6 @@ function BoardContent({ board }) {
         : ACTIVE_DRAG_ITEM_TYPE.COLUMN
     )
     setActiveDragItemData(event?.active?.data?.current)
-  }
-  const findColumnByCardId = (cardId) => {
-    return orderedColumns.find((column) =>
-      column?.cards?.some((card) => card._id === cardId)
-    )
   }
 
   //Trigger trong quá trình kéo 1 phần tử
@@ -185,8 +186,11 @@ function BoardContent({ board }) {
     setOrderedColumns(sortColumns)
     return () => {}
   }, [board])
+
   return (
     <DndContext
+      //
+      collisionDetection={closestCorners}
       sensors={mySensors}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
