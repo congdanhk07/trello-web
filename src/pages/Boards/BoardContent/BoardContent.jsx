@@ -6,11 +6,13 @@ import {
   useSensors,
   DragOverlay,
   defaultDropAnimationSideEffects,
-  closestCorners
+  closestCorners,
+  pointerWithin,
+  rectIntersection
 } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
 import Box from '@mui/material/Box'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { mapOrder } from '~/utils/sorts'
 import ListColumns from './ListColumns/ListColumns'
 import Column from './ListColumns/Column/Column'
@@ -271,6 +273,21 @@ function BoardContent({ board }) {
       }
     })
   }
+  const collisionDetectionStrategy = useCallback(
+    (args) => {
+      if (activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) {
+        return closestCorners({ ...args })
+      }
+      // Xác định các điểm va chạm với con trỏ
+      const pointerIntersactions = pointerWithin(args)
+      const intersacions =
+        pointerIntersactions?.length > 0
+          ? pointerIntersactions
+          : rectIntersection(args)
+    },
+    [activeDragItemType]
+  )
+
   useEffect(() => {
     const sortColumns = mapOrder(board?.columns, board?.columnOrderIds, '_id')
     setOrderedColumns(sortColumns)
@@ -280,7 +297,8 @@ function BoardContent({ board }) {
   return (
     <DndContext
       // Thuật toán phát hiện va chạm (nếu ko có nó thì card có hình ảnh sẽ ko kéo qua các column đc vì nó đang bị conflict giữa card và column)
-      collisionDetection={closestCorners}
+      // collisionDetection={closestCorners} -> Thuật toán bị Flickering-> Chưa tối ưu nên cần optimize custom lại
+      collisionDetection={collisionDetectionStrategy}
       sensors={mySensors}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
