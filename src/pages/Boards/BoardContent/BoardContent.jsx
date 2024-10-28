@@ -8,11 +8,12 @@ import {
   defaultDropAnimationSideEffects,
   closestCorners,
   pointerWithin,
-  rectIntersection
+  rectIntersection,
+  getFirstCollision
 } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
 import Box from '@mui/material/Box'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { mapOrder } from '~/utils/sorts'
 import ListColumns from './ListColumns/ListColumns'
 import Column from './ListColumns/Column/Column'
@@ -31,6 +32,9 @@ function BoardContent({ board }) {
   const [activeDragItemData, setActiveDragItemData] = useState(null)
   const [oldColumnWhenDraggingCard, setOldColumnWhenDraggingCard] =
     useState(null)
+
+  // Điểm va chạm cuối cùng trước đó
+  const lastOverId = useRef(null)
 
   // Handle action click bị gọi handleDragEnd
   // -> distance là số px cần di chuyển để gọi event khi drag
@@ -280,12 +284,39 @@ function BoardContent({ board }) {
       }
       // Xác định các điểm va chạm với con trỏ
       const pointerIntersactions = pointerWithin(args)
+
+      // Thuật toán phát hiện cha chạm sẽ return 1 mảng các điểm va chạm
       const intersacions =
         pointerIntersactions?.length > 0
           ? pointerIntersactions
           : rectIntersection(args)
+
+      // Tìm ra điểm va chạm đầu tiên
+      let overId = getFirstCollision(intersacions, 'id')
+      if (overId) {
+        // Nếu overId là một Column thì sẽ return ra cardId gần nhất trong column đó dựa vào thuật toán phát hiện va chạm
+        const checkColumn = orderedColumns.find(
+          (column) => column._id === overId
+        )
+        if (checkColumn) {
+          //Log đang cho thấy sự thay đỗi id
+          // console.log('overId before', overId)
+          overId = closestCorners({
+            ...args,
+            droppableContainers: args.droppableContainers.filter(
+              (c) =>
+                c.id !== overId && checkColumn?.cardOrderIds?.includes(c.id)
+            )
+          })[0]?.id
+          // console.log('overId after', overId)
+        }
+        lastOverId.current = overId
+        return [{ id: overId }]
+      }
+
+      return lastOverId.current ? [{ id: lastOverId.current }] : []
     },
-    [activeDragItemType]
+    [activeDragItemType, orderedColumns]
   )
 
   useEffect(() => {
