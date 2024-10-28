@@ -1,24 +1,23 @@
 import {
   DndContext,
+  DragOverlay,
   MouseSensor,
   TouchSensor,
-  useSensor,
-  useSensors,
-  DragOverlay,
-  defaultDropAnimationSideEffects,
   closestCorners,
+  defaultDropAnimationSideEffects,
+  getFirstCollision,
   pointerWithin,
-  rectIntersection,
-  getFirstCollision
+  useSensor,
+  useSensors
 } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
 import Box from '@mui/material/Box'
+import cloneDeep from 'lodash/cloneDeep'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { mapOrder } from '~/utils/sorts'
-import ListColumns from './ListColumns/ListColumns'
 import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCard/Card/Card'
-import cloneDeep from 'lodash/cloneDeep'
+import ListColumns from './ListColumns/ListColumns'
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
@@ -284,15 +283,15 @@ function BoardContent({ board }) {
       }
       // Xác định các điểm va chạm với con trỏ
       const pointerIntersactions = pointerWithin(args)
-
+      if (!pointerIntersactions?.length) return
       // Thuật toán phát hiện cha chạm sẽ return 1 mảng các điểm va chạm
-      const intersacions =
-        pointerIntersactions?.length > 0
-          ? pointerIntersactions
-          : rectIntersection(args)
+      // const intersacions =
+      //   pointerIntersactions?.length > 0
+      //     ? pointerIntersactions
+      //     : rectIntersection(args)
 
       // Tìm ra điểm va chạm đầu tiên
-      let overId = getFirstCollision(intersacions, 'id')
+      let overId = getFirstCollision(pointerIntersactions, 'id')
       if (overId) {
         // Nếu overId là một Column thì sẽ return ra cardId gần nhất trong column đó dựa vào thuật toán phát hiện va chạm
         const checkColumn = orderedColumns.find(
