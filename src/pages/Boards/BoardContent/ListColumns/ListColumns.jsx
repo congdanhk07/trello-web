@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box'
 import Column from './Column/Column'
-import { Button } from '@mui/material'
+import Button from '@mui/material/Button'
 import PostAddIcon from '@mui/icons-material/PostAdd'
 import {
   SortableContext,

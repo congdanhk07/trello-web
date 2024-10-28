@@ -8,10 +8,10 @@ const rootElement = document.getElementById('root')
 const root = createRoot(rootElement)
 
 root.render(
-  <React.StrictMode>
-    <CssVarsProvider theme={theme}>
-      <CssBaseline />
-      <App />
-    </CssVarsProvider>
-  </React.StrictMode>
+  // <React.StrictMode>
+  <CssVarsProvider theme={theme}>
+    <CssBaseline />
+    <App />
+  </CssVarsProvider>
+  // </React.StrictMode>
 )
