@@ -41,7 +41,8 @@ function Card({ card }) {
       sx={{
         overflow: 'unset',
         cursor: 'pointer',
-        boxShadow: '0 1px 1px rgba(0,0,0,0.1)'
+        boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+        display: card?.FE_PlaceholderCard ? 'none' : 'block'
       }}
     >
       {card?.cover && (

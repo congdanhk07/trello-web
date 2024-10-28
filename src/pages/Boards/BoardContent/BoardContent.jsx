@@ -18,6 +18,8 @@ import { mapOrder } from '~/utils/sorts'
 import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCard/Card/Card'
 import ListColumns from './ListColumns/ListColumns'
+import { isEmpty } from 'lodash'
+import { generatePlaceholderCard } from '~/utils/formatter'
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
@@ -104,6 +106,12 @@ function BoardContent({ board }) {
         nextActiveColumn.cards = nextActiveColumn.cards.filter(
           (x) => x._id !== activeDraggingCardId
         )
+
+        //Thêm Place Holder Card khi Column rỗng (fix bug)
+        if (isEmpty(nextActiveColumn.cards)) {
+          nextActiveColumn.cards = [generatePlaceholderCard(nextActiveColumn)]
+        }
+
         // Cập nhật lại danh sách thứ tự ở column cũ
         nextActiveColumn.cardOrderIds = nextActiveColumn.cards.map((c) => c._id)
       }
@@ -123,6 +131,12 @@ function BoardContent({ board }) {
           0,
           rebuild_activeDraggingCardData
         )
+
+        //Xoá Placeholder Card nếu nó đang tồn tại (Vì khi này column đã có item)
+        nextOverColumn.cards = nextOverColumn.cards.filter(
+          (c) => !c.FE_PlaceholderCard
+        )
+
         // Cập nhật danh sách column mới
         nextOverColumn.cardOrderIds = nextOverColumn.cards.map((c) => c._id)
       }
