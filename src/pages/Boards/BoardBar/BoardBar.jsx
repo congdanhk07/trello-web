@@ -48,18 +48,22 @@ function BoardBar({ board }) {
           gap: 2
         }}
       >
-        <Chip
-          sx={MENU_STYLES}
-          icon={<DashboardIcon />}
-          clickable
-          label={board?.title}
-        />
-        <Chip
-          sx={MENU_STYLES}
-          icon={<VpnLockIcon />}
-          clickable
-          label={capitalizeFirstLetter(board?.type)}
-        />
+        <Tooltip title={board?.description}>
+          <Chip
+            sx={MENU_STYLES}
+            icon={<DashboardIcon />}
+            clickable
+            label={board?.title}
+          />
+        </Tooltip>
+        <Tooltip title={board?.type}>
+          <Chip
+            sx={MENU_STYLES}
+            icon={<VpnLockIcon />}
+            clickable
+            label={capitalizeFirstLetter(board?.type)}
+          />
+        </Tooltip>
         <Chip
           sx={MENU_STYLES}
           icon={<AddToDriveIcon />}

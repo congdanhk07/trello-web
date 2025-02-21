@@ -1,14 +1,25 @@
 import Container from '@mui/material/Container'
+import { useEffect, useState } from 'react'
+import { fetchBoardDetailsAPI } from '~/apis'
 import AppBar from '~/components/Appbar/Appbar'
 import BoardBar from './BoardBar/BoardBar'
 import BoardContent from './BoardContent/BoardContent'
-import { mockData } from '~/apis/mock-data'
 const Board = () => {
+  const [board, setBoard] = useState(null)
+  useEffect(() => {
+    // TODO: Tạm thời hard để tập trung vào function, theo chuẩn là sẽ dủng react-router-dom để lấy boardId từ URL
+    const boardId = '67b847c74b0861e78ca4b12c'
+    fetchBoardDetailsAPI(boardId).then((data) => {
+      setBoard(data)
+    })
+    return () => {}
+  }, [])
+
   return (
     <Container maxWidth={false} disableGutters sx={{ height: '100vh' }}>
       <AppBar />
-      <BoardBar board={mockData?.board} />
-      <BoardContent board={mockData?.board} />
+      <BoardBar board={board} />
+      <BoardContent board={board} />
     </Container>
   )
 }
