@@ -42,6 +42,11 @@ function Card({ card }) {
         overflow: 'unset',
         cursor: 'pointer',
         boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+        border: '1px solid transparent',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          borderColor: (theme) => theme.palette.primary.main
+        },
         display: card?.FE_PlaceholderCard ? 'none' : 'block'
       }}
     >
