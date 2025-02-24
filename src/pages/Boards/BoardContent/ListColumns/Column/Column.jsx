@@ -235,6 +235,7 @@ function Column({ column }) {
                 label='Enter card title...'
                 type='text'
                 size='small'
+                data-no-dnd={true}
               />
               <Box
                 sx={{
@@ -248,6 +249,7 @@ function Column({ column }) {
                   variant='contained'
                   color='success'
                   size='small'
+                  data-no-dnd={true}
                   sx={{
                     boxShadow: 'none',
                     border: '0.5px solid',
@@ -258,6 +260,7 @@ function Column({ column }) {
                 </Button>
                 <CloseIcon
                   fontSize='small'
+                  data-no-dnd={true}
                   onClick={toggleNewCardForm}
                   sx={{
                     cursor: 'pointer',

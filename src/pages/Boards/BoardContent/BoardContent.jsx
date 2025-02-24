@@ -1,8 +1,6 @@
 import {
   DndContext,
   DragOverlay,
-  MouseSensor,
-  TouchSensor,
   closestCorners,
   defaultDropAnimationSideEffects,
   getFirstCollision,
@@ -10,6 +8,7 @@ import {
   useSensor,
   useSensors
 } from '@dnd-kit/core'
+import { MouseSensor, TouchSensor } from '~/customLibs/DndKitSensor'
 import { arrayMove } from '@dnd-kit/sortable'
 import Box from '@mui/material/Box'
 import cloneDeep from 'lodash/cloneDeep'
