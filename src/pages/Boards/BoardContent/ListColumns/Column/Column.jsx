@@ -21,6 +21,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import TextField from '@mui/material/TextField'
 import CloseIcon from '@mui/icons-material/Close'
+import { toast } from 'react-toastify'
 
 function Column({ column }) {
   const [anchorEl, setAnchorEl] = useState(null)
@@ -38,17 +39,16 @@ function Column({ column }) {
   const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, '_id')
 
   const addNewCard = () => {
-    if (!newCardTitle) return
+    if (!newCardTitle)
+      return toast.error('Please enter card title!', {
+        position: 'bottom-right'
+      })
     // handle API to add new card...
     setOpenNewCardForm(false)
     setNewCardTitle('')
   }
 
   const toggleNewCardForm = () => {
-    setOpenNewCardForm(!openNewCardForm)
-  }
-
-  const toggleNewColumnForm = () => {
     setOpenNewCardForm(!openNewCardForm)
   }
 
