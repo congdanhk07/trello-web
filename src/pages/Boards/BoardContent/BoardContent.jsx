@@ -24,7 +24,7 @@ const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
   CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD'
 }
-function BoardContent({ board }) {
+function BoardContent({ board, createNewColumn, createNewCard }) {
   const [orderedColumns, setOrderedColumns] = useState([])
   // Cúng 1 thời điểm chỉ cho kéo một item (card or column)
   const [activeDragItemId, setActiveDragItemId] = useState(null)
@@ -358,7 +358,11 @@ function BoardContent({ board }) {
         }}
       >
         {/* COLUMN */}
-        <ListColumns columns={orderedColumns} />
+        <ListColumns
+          createNewCard={createNewCard}
+          columns={orderedColumns}
+          createNewColumn={createNewColumn}
+        />
         <DragOverlay dropAnimation={customDropAnimation}>
           {!activeDragItemType && null}
           {activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN && (

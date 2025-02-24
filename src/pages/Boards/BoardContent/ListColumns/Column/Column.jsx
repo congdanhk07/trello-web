@@ -23,7 +23,7 @@ import TextField from '@mui/material/TextField'
 import CloseIcon from '@mui/icons-material/Close'
 import { toast } from 'react-toastify'
 
-function Column({ column }) {
+function Column({ column, createNewCard }) {
   const [anchorEl, setAnchorEl] = useState(null)
   const [openNewCardForm, setOpenNewCardForm] = useState(false)
   const [newCardTitle, setNewCardTitle] = useState('')
@@ -38,12 +38,17 @@ function Column({ column }) {
   const open = Boolean(anchorEl)
   const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, '_id')
 
-  const addNewCard = () => {
+  const addNewCard = async () => {
     if (!newCardTitle)
       return toast.error('Please enter card title!', {
         position: 'bottom-right'
       })
     // handle API to add new card...
+    const newCardData = {
+      columnId: column._id,
+      title: newCardTitle
+    }
+    await createNewCard(newCardData)
     setOpenNewCardForm(false)
     setNewCardTitle('')
   }

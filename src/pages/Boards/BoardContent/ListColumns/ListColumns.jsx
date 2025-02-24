@@ -11,13 +11,21 @@ import TextField from '@mui/material/TextField'
 import CloseIcon from '@mui/icons-material/Close'
 import { toast } from 'react-toastify'
 
-function ListColumns({ columns }) {
+function ListColumns({ columns, createNewColumn, createNewCard }) {
   const [openNewColumnForm, setOpenNewColumnForm] = useState(false)
   const [newColumnTitle, setNewColumnTitle] = useState('')
 
-  const addNewColumn = () => {
+  const addNewColumn = async () => {
     if (!newColumnTitle) return toast.error('Please enter column title!')
-    // handle API ...
+    // Truyền props ra component cha (_id.jsx) xử lý để update toàn bộ board
+    // sau này gắn Redux vào sẽ có thể call API tại đây luôn vì đã có store quản lí
+    const newColumnData = {
+      title: newColumnTitle
+    }
+    await createNewColumn(newColumnData)
+
+    toggleNewColumnForm()
+    setNewColumnTitle('')
   }
   const toggleNewColumnForm = () => {
     setOpenNewColumnForm(!openNewColumnForm)
@@ -42,7 +50,11 @@ function ListColumns({ columns }) {
         }}
       >
         {columns?.map((column) => (
-          <Column key={column._id} column={column} />
+          <Column
+            key={column._id}
+            column={column}
+            createNewCard={createNewCard}
+          />
         ))}
         {/* Add new column CTA */}
         {!openNewColumnForm ? (
