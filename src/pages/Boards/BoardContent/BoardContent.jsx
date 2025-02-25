@@ -24,7 +24,7 @@ const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
   CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD'
 }
-function BoardContent({ board, createNewColumn, createNewCard }) {
+function BoardContent({ board, createNewColumn, createNewCard, moveColumns }) {
   const [orderedColumns, setOrderedColumns] = useState([])
   // Cúng 1 thời điểm chỉ cho kéo một item (card or column)
   const [activeDragItemId, setActiveDragItemId] = useState(null)
@@ -193,12 +193,15 @@ function BoardContent({ board, createNewColumn, createNewCard }) {
       )
     }
   }
+  // Trigger khi kết thúc hành động drag item (bắt đầu hành động thả - drop)
   const handleDragEnd = (event) => {
     const { active, over } = event
-    // Check nếu kéo sai vị trí thì sẽ ko hoạt động
+    // Đảm bảo nếu không tồn tại active/over thì ko làm gì cả (khi kéo ra khỏi container kéo thả)
     if (!over || !active) return
 
+    // Xử lý kéo thả Cards
     if (activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.CARD) {
+      // activeDraggingCard: Card đang được kéo
       const {
         id: activeDraggingCardId,
         data: { current: activeDraggingCardData }
@@ -263,13 +266,12 @@ function BoardContent({ board, createNewColumn, createNewCard }) {
           oldColumnIndex,
           newColumnIndex
         )
-
-        // handle update dndOderredColumnsIds trong db
-        // const dndOderredColumnsIds = dndOderredColumns.map((c) => c._id)
-        // console.log('dndOderredColumns', dndOderredColumns)
-        // console.log('dndOderredColumnsIds', dndOderredColumnsIds)
+        // Tạm chuyển lên page cha để xử lí để đồng bộ data (vì chưa setup Redux)
+        // Đúng flow sẽ dispatch xử lý trong redux để clean code và dễ quản lý hơn
+        moveColumns(dndOderredColumns)
 
         //Cập nhật danh sách render các cột
+        //Update state này để tránh tình trạng flickering khi drag column (Khi đang chờ API cập nhật)
         setOrderedColumns(dndOderredColumns)
       }
     }

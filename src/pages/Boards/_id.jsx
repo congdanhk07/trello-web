@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react'
 import {
   fetchBoardDetailsAPI,
   createNewColumnAPI,
-  createNewCardAPI
+  createNewCardAPI,
+  updateBoardDetailsAPI
 } from '~/apis'
 import AppBar from '~/components/Appbar/Appbar'
 import BoardBar from './BoardBar/BoardBar'
@@ -25,7 +26,6 @@ const Board = () => {
           column.cardOrderIds = [generatePlaceholderCard(column)._id]
         }
       })
-      console.log('board', board)
       setBoard(board)
     })
     return () => {}
@@ -71,6 +71,20 @@ const Board = () => {
     setBoard(newBoard)
   }
 
+  // Gọi API và xử lí sau khi kéo thả Column hoàn thành
+  const moveColumns = async (dndOderredColumns) => {
+    const dndOderredColumnsIds = dndOderredColumns.map((c) => c._id)
+
+    const newBoard = { ...board }
+    newBoard.columns = dndOderredColumns
+    newBoard.columnOrderIds = dndOderredColumnsIds
+
+    setBoard(newBoard)
+    await updateBoardDetailsAPI(newBoard._id, {
+      columnOrderIds: dndOderredColumnsIds
+    })
+  }
+
   return (
     <Container maxWidth={false} disableGutters sx={{ height: '100vh' }}>
       <AppBar />
@@ -79,6 +93,7 @@ const Board = () => {
         board={board}
         createNewColumn={createNewColumn}
         createNewCard={createNewCard}
+        moveColumns={moveColumns}
       />
     </Container>
   )
