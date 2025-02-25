@@ -4,7 +4,8 @@ import {
   fetchBoardDetailsAPI,
   createNewColumnAPI,
   createNewCardAPI,
-  updateBoardDetailsAPI
+  updateBoardDetailsAPI,
+  updateColumnDetailsAPI
 } from '~/apis'
 import AppBar from '~/components/Appbar/Appbar'
 import BoardBar from './BoardBar/BoardBar'
@@ -26,6 +27,8 @@ const Board = () => {
           column.cardOrderIds = [generatePlaceholderCard(column)._id]
         }
       })
+      console.log('full board', board)
+
       setBoard(board)
     })
     return () => {}
@@ -49,7 +52,6 @@ const Board = () => {
     const newBoard = { ...board }
     newBoard.columns.push(createdColumn)
     newBoard.columnOrderIds.push(createdColumn._id)
-
     setBoard(newBoard)
   }
 
@@ -72,7 +74,7 @@ const Board = () => {
   }
 
   // Gọi API và xử lí sau khi kéo thả Column hoàn thành
-  const moveColumns = async (dndOderredColumns) => {
+  const moveColumns = (dndOderredColumns) => {
     const dndOderredColumnsIds = dndOderredColumns.map((c) => c._id)
 
     const newBoard = { ...board }
@@ -80,9 +82,29 @@ const Board = () => {
     newBoard.columnOrderIds = dndOderredColumnsIds
 
     setBoard(newBoard)
-    await updateBoardDetailsAPI(newBoard._id, {
+    updateBoardDetailsAPI(newBoard._id, {
       columnOrderIds: dndOderredColumnsIds
     })
+  }
+
+  // Khi di chuyển card trong cùng 1 column:
+  // Chỉ cần gọi API cập nhật cardOrderIds của Column chứa nó (buisiness giống như thay đổi vị trí column trong board)
+  const moveCardInTheSameColumn = (
+    dndOrderedCards,
+    dndOrderedCardIds,
+    columnId
+  ) => {
+    // update cards trong column
+    const newBoard = { ...board }
+    const columnToUpdate = newBoard.columns.find((x) => x._id === columnId)
+    if (columnToUpdate) {
+      columnToUpdate.cards = dndOrderedCards
+      columnToUpdate.cardOrderIds = dndOrderedCardIds
+    }
+    setBoard(newBoard)
+    // updateColumnDetailsAPI(columnId, {
+    //   cardOrderIds: dndOrderedCardIds
+    // })
   }
 
   return (
@@ -94,6 +116,7 @@ const Board = () => {
         createNewColumn={createNewColumn}
         createNewCard={createNewCard}
         moveColumns={moveColumns}
+        moveCardInTheSameColumn={moveCardInTheSameColumn}
       />
     </Container>
   )

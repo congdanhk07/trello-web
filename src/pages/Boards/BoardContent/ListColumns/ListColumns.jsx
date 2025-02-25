@@ -15,14 +15,14 @@ function ListColumns({ columns, createNewColumn, createNewCard }) {
   const [openNewColumnForm, setOpenNewColumnForm] = useState(false)
   const [newColumnTitle, setNewColumnTitle] = useState('')
 
-  const addNewColumn = async () => {
+  const addNewColumn = () => {
     if (!newColumnTitle) return toast.error('Please enter column title!')
     // Truyền props ra component cha (_id.jsx) xử lý để update toàn bộ board
     // sau này gắn Redux vào sẽ có thể call API tại đây luôn vì đã có store quản lí
     const newColumnData = {
       title: newColumnTitle
     }
-    await createNewColumn(newColumnData)
+    createNewColumn(newColumnData)
 
     toggleNewColumnForm()
     setNewColumnTitle('')

@@ -24,7 +24,13 @@ const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
   CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD'
 }
-function BoardContent({ board, createNewColumn, createNewCard, moveColumns }) {
+function BoardContent({
+  board,
+  createNewColumn,
+  createNewCard,
+  moveColumns,
+  moveCardInTheSameColumn
+}) {
   const [orderedColumns, setOrderedColumns] = useState([])
   // Cúng 1 thời điểm chỉ cho kéo một item (card or column)
   const [activeDragItemId, setActiveDragItemId] = useState(null)
@@ -231,14 +237,20 @@ function BoardContent({ board, createNewColumn, createNewCard, moveColumns }) {
         const oldCardIndex = oldColumnWhenDraggingCard?.cards?.findIndex(
           (c) => c._id === activeDragItemId
         )
+        console.log('oldCardIndex', oldCardIndex)
         const newCardIndex = oldColumnWhenDraggingCard?.cards?.findIndex(
           (c) => c._id === overCardId
         )
-        const dndOderredCards = arrayMove(
+        console.log('newCardIndex', newCardIndex)
+
+        const dndOrderedCards = arrayMove(
           oldColumnWhenDraggingCard?.cards,
           oldCardIndex,
           newCardIndex
         )
+        const dndOrderedCardIds = dndOrderedCards.map((x) => x._id)
+
+        // Giữ nguyên logic update card để tránh delay/flickering khi APi đang gọi
         setOrderedColumns((prev) => {
           // Sử dụng clone deep vì đây là 1 mảng đa cấp -> Tránh shallow copy -> Tránh bug
           const nextColumns = cloneDeep(prev)
@@ -246,11 +258,17 @@ function BoardContent({ board, createNewColumn, createNewCard, moveColumns }) {
           // Keyword: Update data trong Array
           const targetColumn = nextColumns.find((c) => c._id === overColumn._id)
           // Cập nhật lại card và cardOrderIds trong column đó
-          targetColumn.cards = dndOderredCards
-          targetColumn.cardOrderIds = dndOderredCards.map((x) => x._id)
+          targetColumn.cards = dndOrderedCards
+          targetColumn.cardOrderIds = dndOrderedCardIds
           // Trả về nextColumn sau khi cập nhật targetColumn
           return nextColumns
         })
+        //TODO: Sau khi setup redux sẽ di chuyển vào store để đúng flow hơn
+        moveCardInTheSameColumn(
+          dndOrderedCards,
+          dndOrderedCardIds,
+          oldColumnWhenDraggingCard._id
+        )
       }
     }
     if (activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) {
@@ -266,13 +284,13 @@ function BoardContent({ board, createNewColumn, createNewCard, moveColumns }) {
           oldColumnIndex,
           newColumnIndex
         )
-        // Tạm chuyển lên page cha để xử lí để đồng bộ data (vì chưa setup Redux)
-        // Đúng flow sẽ dispatch xử lý trong redux để clean code và dễ quản lý hơn
-        moveColumns(dndOderredColumns)
-
         //Cập nhật danh sách render các cột
         //Update state này để tránh tình trạng flickering khi drag column (Khi đang chờ API cập nhật)
         setOrderedColumns(dndOderredColumns)
+
+        // Tạm chuyển lên page cha để xử lí để đồng bộ data (vì chưa setup Redux)
+        // Đúng flow sẽ dispatch xử lý trong redux để clean code và dễ quản lý hơn
+        moveColumns(dndOderredColumns)
       }
     }
 

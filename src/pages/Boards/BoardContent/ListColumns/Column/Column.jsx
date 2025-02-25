@@ -38,7 +38,7 @@ function Column({ column, createNewCard }) {
   const open = Boolean(anchorEl)
   const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, '_id')
 
-  const addNewCard = async () => {
+  const addNewCard = () => {
     if (!newCardTitle)
       return toast.error('Please enter card title!', {
         position: 'bottom-right'
@@ -48,7 +48,7 @@ function Column({ column, createNewCard }) {
       columnId: column._id,
       title: newCardTitle
     }
-    await createNewCard(newCardData)
+    createNewCard(newCardData)
     setOpenNewCardForm(false)
     setNewCardTitle('')
   }
