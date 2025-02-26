@@ -5,7 +5,8 @@ import {
   createNewColumnAPI,
   createNewCardAPI,
   updateBoardDetailsAPI,
-  updateColumnDetailsAPI
+  updateColumnDetailsAPI,
+  moveCardToDifferentColumnAPI
 } from '~/apis'
 import AppBar from '~/components/Appbar/Appbar'
 import BoardBar from './BoardBar/BoardBar'
@@ -114,6 +115,35 @@ const Board = () => {
       cardOrderIds: dndOrderedCardIds
     })
   }
+
+  // Khi di chuyển card khác column thì:
+  // B1: Cập nhật lại cardOrderIds ở column ban đầu (Xóa ra khỏi column ban đầu)
+  // B2: Cập nhật cardOrderIds ở column mới (Thêm vào column mới)
+  // B3: Cập nhật lại columnId của card đã kéo sau khi kéo qua column mới
+  const moveCardToDifferentColumn = (
+    currentCardId,
+    prevColumnId,
+    nextColumnId,
+    dndOderredColumns
+  ) => {
+    const dndOderredColumnsIds = dndOderredColumns.map((c) => c._id)
+    const newBoard = { ...board }
+    newBoard.columns = dndOderredColumns
+    newBoard.columnOrderIds = dndOderredColumnsIds
+
+    setBoard(newBoard)
+
+    moveCardToDifferentColumnAPI({
+      currentCardId,
+      prevColumnId,
+      prevCardOrderIds: dndOderredColumns.find((x) => x._id === prevColumnId)
+        ?.cardOrderIds,
+      nextColumnId,
+      nextCardOrderIds: dndOderredColumns.find((x) => x._id === nextColumnId)
+        ?.cardOrderIds
+    })
+  }
+
   if (!board)
     return (
       <Box
@@ -139,6 +169,7 @@ const Board = () => {
         createNewCard={createNewCard}
         moveColumns={moveColumns}
         moveCardInTheSameColumn={moveCardInTheSameColumn}
+        moveCardToDifferentColumn={moveCardToDifferentColumn}
       />
     </Container>
   )

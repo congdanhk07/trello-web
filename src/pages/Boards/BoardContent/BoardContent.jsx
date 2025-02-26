@@ -28,7 +28,8 @@ function BoardContent({
   createNewColumn,
   createNewCard,
   moveColumns,
-  moveCardInTheSameColumn
+  moveCardInTheSameColumn,
+  moveCardToDifferentColumn
 }) {
   const [orderedColumns, setOrderedColumns] = useState([])
   // Cúng 1 thời điểm chỉ cho kéo một item (card or column)
@@ -77,7 +78,8 @@ function BoardContent({
     over,
     activeColumn,
     activeDraggingCardId,
-    activeDraggingCardData
+    activeDraggingCardData,
+    triggerFrom
   ) => {
     setOrderedColumns((prevColumn) => {
       // Handle logic xác định card vừa kéo qua sẽ nằm trên hay dưới overCard -> Copy từ thư viện trên github
@@ -144,6 +146,17 @@ function BoardContent({
         // Cập nhật danh sách column mới
         nextOverColumn.cardOrderIds = nextOverColumn.cards.map((c) => c._id)
       }
+      // Nếu function này đc gọi từ handleDragEnd thì chúng ta mới bắt đầu call API
+      if (triggerFrom === 'handleDragEnd') {
+        // sử dụng oldColumnWhenDraggingCard/activeDragItemData vì nó đã setState từ khi DragStart
+        moveCardToDifferentColumn(
+          activeDraggingCardId,
+          oldColumnWhenDraggingCard._id,
+          nextOverColumn._id,
+          nextColumns
+        )
+      }
+
       return nextColumns
     })
   }
@@ -194,7 +207,8 @@ function BoardContent({
         over,
         activeColumn,
         activeDraggingCardId,
-        activeDraggingCardData
+        activeDraggingCardData,
+        'handleDragOver'
       )
     }
   }
@@ -228,7 +242,8 @@ function BoardContent({
           over,
           activeColumn,
           activeDraggingCardId,
-          activeDraggingCardData
+          activeDraggingCardData,
+          'handleDragEnd'
         )
       } else {
         // Handle Drag card trong cùng 1 column (Giống drag column trong 1 board)
