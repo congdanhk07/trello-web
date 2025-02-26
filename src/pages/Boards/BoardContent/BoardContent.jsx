@@ -8,17 +8,16 @@ import {
   useSensor,
   useSensors
 } from '@dnd-kit/core'
-import { MouseSensor, TouchSensor } from '~/customLibs/DndKitSensor'
 import { arrayMove } from '@dnd-kit/sortable'
 import Box from '@mui/material/Box'
+import { isEmpty } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { mapOrder } from '~/utils/sorts'
+import { MouseSensor, TouchSensor } from '~/customLibs/DndKitSensor'
+import { generatePlaceholderCard } from '~/utils/formatter'
 import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCard/Card/Card'
 import ListColumns from './ListColumns/ListColumns'
-import { isEmpty } from 'lodash'
-import { generatePlaceholderCard } from '~/utils/formatter'
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
@@ -237,11 +236,9 @@ function BoardContent({
         const oldCardIndex = oldColumnWhenDraggingCard?.cards?.findIndex(
           (c) => c._id === activeDragItemId
         )
-        console.log('oldCardIndex', oldCardIndex)
         const newCardIndex = oldColumnWhenDraggingCard?.cards?.findIndex(
           (c) => c._id === overCardId
         )
-        console.log('newCardIndex', newCardIndex)
 
         const dndOrderedCards = arrayMove(
           oldColumnWhenDraggingCard?.cards,
@@ -352,8 +349,8 @@ function BoardContent({
   )
 
   useEffect(() => {
-    const sortColumns = mapOrder(board?.columns, board?.columnOrderIds, '_id')
-    setOrderedColumns(sortColumns)
+    // Column đã được sắp sap xếp trên trang _id nên chỉ cần setState
+    setOrderedColumns(board?.columns)
     return () => {}
   }, [board])
 

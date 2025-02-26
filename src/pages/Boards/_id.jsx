@@ -12,19 +12,27 @@ import BoardBar from './BoardBar/BoardBar'
 import BoardContent from './BoardContent/BoardContent'
 import { generatePlaceholderCard } from '~/utils/formatter'
 import isEmpty from 'lodash/isEmpty'
+import { mapOrder } from '~/utils/sorts'
+import { Box, CircularProgress } from '@mui/material'
+
 const Board = () => {
   const [board, setBoard] = useState(null)
   useEffect(() => {
     // TODO: Tạm thời hard để tập trung vào function, theo chuẩn là sẽ dủng react-router-dom để lấy boardId từ URL
     const boardId = '67b973d1c0173810677f470c'
     fetchBoardDetailsAPI(boardId).then((board) => {
-      // Khi refresh web thì cần kiểm tra:
-      // Xử lý vấn đề kéo thả vào một column rỗng
-      // Tạo một card rỗng cho column khi getBoard mà cards ko có item
+      // Sắp xếp vị trí columns trước khi trả về render để đồng bộ dữ liệu trong state ngay từ đầu
+      board.columns = mapOrder(board?.columns, board?.columnOrderIds, '_id')
+
       board.columns.forEach((column) => {
+        // Khi refresh web thì cần kiểm tra: Xử lý vấn đề kéo thả vào một column rỗng
+        // Tạo một card rỗng cho column khi getBoard mà cards ko có item
         if (isEmpty(column.cards)) {
           column.cards = [generatePlaceholderCard(column)]
           column.cardOrderIds = [generatePlaceholderCard(column)._id]
+        } else {
+          // Nếu column không rỗng thì sắp xếp luôn cards trước khi trả data về đồng bộ
+          column.cards = mapOrder(column.cards, column.cardOrderIds, '_id')
         }
       })
       console.log('full board', board)
@@ -102,11 +110,25 @@ const Board = () => {
       columnToUpdate.cardOrderIds = dndOrderedCardIds
     }
     setBoard(newBoard)
-    // updateColumnDetailsAPI(columnId, {
-    //   cardOrderIds: dndOrderedCardIds
-    // })
+    updateColumnDetailsAPI(columnId, {
+      cardOrderIds: dndOrderedCardIds
+    })
   }
-
+  if (!board)
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          width: '100vw',
+          gap: 2
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    )
   return (
     <Container maxWidth={false} disableGutters sx={{ height: '100vh' }}>
       <AppBar />

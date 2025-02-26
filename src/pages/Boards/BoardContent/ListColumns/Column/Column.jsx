@@ -16,7 +16,6 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { useState } from 'react'
 import ListCard from './ListCard/ListCard'
-import { mapOrder } from '~/utils/sorts'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import TextField from '@mui/material/TextField'
@@ -36,7 +35,7 @@ function Column({ column, createNewCard }) {
     isDragging
   } = useSortable({ id: column._id, data: { ...column } })
   const open = Boolean(anchorEl)
-  const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, '_id')
+  const orderedCards = column?.cards
 
   const addNewCard = () => {
     if (!newCardTitle)
