@@ -29,7 +29,8 @@ function BoardContent({
   createNewCard,
   moveColumns,
   moveCardInTheSameColumn,
-  moveCardToDifferentColumn
+  moveCardToDifferentColumn,
+  deleteColumnDetails
 }) {
   const [orderedColumns, setOrderedColumns] = useState([])
   // Cúng 1 thời điểm chỉ cho kéo một item (card or column)
@@ -391,6 +392,7 @@ function BoardContent({
       >
         {/* COLUMN */}
         <ListColumns
+          deleteColumnDetails={deleteColumnDetails}
           createNewCard={createNewCard}
           columns={orderedColumns}
           createNewColumn={createNewColumn}

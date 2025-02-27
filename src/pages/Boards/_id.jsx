@@ -6,7 +6,8 @@ import {
   createNewCardAPI,
   updateBoardDetailsAPI,
   updateColumnDetailsAPI,
-  moveCardToDifferentColumnAPI
+  moveCardToDifferentColumnAPI,
+  deleteColumnDetailsAPI
 } from '~/apis'
 import AppBar from '~/components/Appbar/Appbar'
 import BoardBar from './BoardBar/BoardBar'
@@ -15,6 +16,7 @@ import { generatePlaceholderCard } from '~/utils/formatter'
 import isEmpty from 'lodash/isEmpty'
 import { mapOrder } from '~/utils/sorts'
 import { Box, CircularProgress } from '@mui/material'
+import { toast } from 'react-toastify'
 
 const Board = () => {
   const [board, setBoard] = useState(null)
@@ -36,8 +38,6 @@ const Board = () => {
           column.cards = mapOrder(column.cards, column.cardOrderIds, '_id')
         }
       })
-      console.log('full board', board)
-
       setBoard(board)
     })
     return () => {}
@@ -76,8 +76,16 @@ const Board = () => {
       (x) => x._id === createdCard.columnId
     )
     if (columnToUpdate) {
-      columnToUpdate.cards.push(createdCard)
-      columnToUpdate.cardOrderIds.push(createdCard._id)
+      // nếu column rỗng: bàn chất là đang chứa một place-holder-card trong column
+      // Nên khi create card mà column rỗng thì chúng ta xóa placeholder-card trước khi đầy card mới vào
+      // Nếu column không rỗng thì chúng ta sẽ mặc định đẩy card mới vào
+      if (columnToUpdate.cards.some((x) => x.FE_PlaceholderCard)) {
+        columnToUpdate.cards = [createdCard]
+        columnToUpdate.cardOrderIds = [createdCard._id]
+      } else {
+        columnToUpdate.cards.push(createdCard)
+        columnToUpdate.cardOrderIds.push(createdCard._id)
+      }
     }
     setBoard(newBoard)
   }
@@ -133,14 +141,35 @@ const Board = () => {
 
     setBoard(newBoard)
 
+    let prevCardOrderIds = dndOderredColumns.find(
+      (x) => x._id === prevColumnId
+    )?.cardOrderIds
+    // Khi column rỗng thì chúng ta đang create một temp card để có thể drag card khác vào column
+    // Nên khi di chuyển card cuối cùng ra ngoài, prevCard khi này đang chứa một placeholder card
+    // Nhưng chúng ta ko cần gửi giá trị đó đến BE nên chúng ta phải clear nó trước khi gửi
+    if (prevCardOrderIds[0].includes('placeholder-card')) prevCardOrderIds = []
+
     moveCardToDifferentColumnAPI({
       currentCardId,
       prevColumnId,
-      prevCardOrderIds: dndOderredColumns.find((x) => x._id === prevColumnId)
-        ?.cardOrderIds,
+      prevCardOrderIds,
       nextColumnId,
       nextCardOrderIds: dndOderredColumns.find((x) => x._id === nextColumnId)
         ?.cardOrderIds
+    })
+  }
+
+  const deleteColumnDetails = (columnId) => {
+    // Cập nhật state board khi delete column
+    const newBoard = { ...board }
+    newBoard.columns = newBoard.columns.filter((x) => x._id !== columnId)
+    newBoard.columnOrderIds = newBoard.columnOrderIds.filter(
+      (x) => x !== columnId
+    )
+    setBoard(newBoard)
+
+    deleteColumnDetailsAPI(columnId).then((res) => {
+      toast.success(res.deleteResult)
     })
   }
 
@@ -165,6 +194,7 @@ const Board = () => {
       <BoardBar board={board} />
       <BoardContent
         board={board}
+        deleteColumnDetails={deleteColumnDetails}
         createNewColumn={createNewColumn}
         createNewCard={createNewCard}
         moveColumns={moveColumns}
