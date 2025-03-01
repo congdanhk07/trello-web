@@ -6,7 +6,7 @@
   "author": "Congdanhk07",
   "description": "",
   "engines": {
-    "node": "18.16.0"
+    "node": "20.x"
   },
   "scripts": {
     "dev": "vite --host",
