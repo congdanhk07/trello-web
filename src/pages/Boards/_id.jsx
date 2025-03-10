@@ -1,7 +1,6 @@
 import Container from '@mui/material/Container'
 import { useEffect, useState } from 'react'
 import {
-  fetchBoardDetailsAPI,
   createNewColumnAPI,
   createNewCardAPI,
   updateBoardDetailsAPI,
@@ -17,31 +16,25 @@ import isEmpty from 'lodash/isEmpty'
 import { mapOrder } from '~/utils/sorts'
 import { Box, CircularProgress } from '@mui/material'
 import { toast } from 'react-toastify'
+import {
+  fetchBoardDetailsAPI,
+  updateCurrentActiveBoard,
+  selectCurrentActiveBoard
+} from '~/redux/activeBoard/activeBoardSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import cloneDeep from 'lodash/cloneDeep'
 
 const Board = () => {
-  const [board, setBoard] = useState(null)
+  const dispatch = useDispatch()
+  const board = useSelector(selectCurrentActiveBoard)
+  // const [board, setBoard] = useState(null)
   useEffect(() => {
     // TODO: Tạm thời hard để tập trung vào function, theo chuẩn là sẽ dủng react-router-dom để lấy boardId từ URL
     const boardId = '67b973d1c0173810677f470c'
-    fetchBoardDetailsAPI(boardId).then((board) => {
-      // Sắp xếp vị trí columns trước khi trả về render để đồng bộ dữ liệu trong state ngay từ đầu
-      board.columns = mapOrder(board?.columns, board?.columnOrderIds, '_id')
 
-      board.columns.forEach((column) => {
-        // Khi refresh web thì cần kiểm tra: Xử lý vấn đề kéo thả vào một column rỗng
-        // Tạo một card rỗng cho column khi getBoard mà cards ko có item
-        if (isEmpty(column.cards)) {
-          column.cards = [generatePlaceholderCard(column)]
-          column.cardOrderIds = [generatePlaceholderCard(column)._id]
-        } else {
-          // Nếu column không rỗng thì sắp xếp luôn cards trước khi trả data về đồng bộ
-          column.cards = mapOrder(column.cards, column.cardOrderIds, '_id')
-        }
-      })
-      setBoard(board)
-    })
+    dispatch(fetchBoardDetailsAPI(boardId))
     return () => {}
-  }, [])
+  }, [dispatch])
 
   // TODO: Tập trung xử lý flow function, update data board sau khi call API create new column
   const createNewColumn = async (dataNewColumn) => {
@@ -58,10 +51,14 @@ const Board = () => {
     // Chúng ta đang tự cập nhật lại dữ liệu render phía FE thay vì gọi lại fetchDetails
     // Điều này phụ thuộc vào spec của dự án có BE hỗ trợ trả về toàn bộ Board dù đây là đang call API create column hay card
 
-    const newBoard = { ...board }
+    // object is not extensible vì dù đã clone ra instance mới nhưng bản chất của việc clone là shallow copy
+    // Đụng phải tính chất rule Immutability trong Redux -> Ko đc dùng PUSH để add giá trị mới vào value redux
+    // Sử dụng Deep Clone để có một instance hoàn toàn mới (1 case chi tiết cần dùng Deep Clone)
+    // Ngoài cách cloneDeep thì có thể dủng concat() để merge -> tạo ra instance mới không liên quan đến mảng cũ
+    const newBoard = cloneDeep(board)
     newBoard.columns.push(createdColumn)
     newBoard.columnOrderIds.push(createdColumn._id)
-    setBoard(newBoard)
+    dispatch(updateCurrentActiveBoard(newBoard))
   }
 
   const createNewCard = async (dataNewCard) => {
@@ -87,7 +84,8 @@ const Board = () => {
         columnToUpdate.cardOrderIds.push(createdCard._id)
       }
     }
-    setBoard(newBoard)
+    // Sử dụng Reducer để cập nhật các data đồng bộ
+    dispatch(updateCurrentActiveBoard(newBoard))
   }
 
   // Gọi API và xử lí sau khi kéo thả Column hoàn thành
@@ -97,8 +95,9 @@ const Board = () => {
     const newBoard = { ...board }
     newBoard.columns = dndOderredColumns
     newBoard.columnOrderIds = dndOderredColumnsIds
+    // Sử dụng Reducer để cập nhật các data đồng bộ
+    dispatch(updateCurrentActiveBoard(newBoard))
 
-    setBoard(newBoard)
     updateBoardDetailsAPI(newBoard._id, {
       columnOrderIds: dndOderredColumnsIds
     })
@@ -118,7 +117,9 @@ const Board = () => {
       columnToUpdate.cards = dndOrderedCards
       columnToUpdate.cardOrderIds = dndOrderedCardIds
     }
-    setBoard(newBoard)
+    // Sử dụng Reducer để cập nhật các data đồng bộ
+    dispatch(updateCurrentActiveBoard(newBoard))
+
     updateColumnDetailsAPI(columnId, {
       cardOrderIds: dndOrderedCardIds
     })
@@ -139,7 +140,8 @@ const Board = () => {
     newBoard.columns = dndOderredColumns
     newBoard.columnOrderIds = dndOderredColumnsIds
 
-    setBoard(newBoard)
+    // Sử dụng Reducer để cập nhật các data đồng bộ
+    dispatch(updateCurrentActiveBoard(newBoard))
 
     let prevCardOrderIds = dndOderredColumns.find(
       (x) => x._id === prevColumnId
@@ -166,7 +168,8 @@ const Board = () => {
     newBoard.columnOrderIds = newBoard.columnOrderIds.filter(
       (x) => x !== columnId
     )
-    setBoard(newBoard)
+    // Sử dụng Reducer để cập nhật các data đồng bộ
+    dispatch(updateCurrentActiveBoard(newBoard))
 
     deleteColumnDetailsAPI(columnId).then((res) => {
       toast.success(res.deleteResult)
