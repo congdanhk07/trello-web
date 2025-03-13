@@ -2,6 +2,7 @@ import Box from '@mui/material/Box'
 import Column from './Column/Column'
 import Button from '@mui/material/Button'
 import PostAddIcon from '@mui/icons-material/PostAdd'
+import { generatePlaceholderCard } from '~/utils/formatter'
 import {
   SortableContext,
   horizontalListSortingStrategy
@@ -10,24 +11,48 @@ import { useState } from 'react'
 import TextField from '@mui/material/TextField'
 import CloseIcon from '@mui/icons-material/Close'
 import { toast } from 'react-toastify'
+import {
+  selectCurrentActiveBoard,
+  updateCurrentActiveBoard
+} from '~/redux/activeBoard/activeBoardSlice'
+import { createNewColumnAPI } from '~/apis'
+import cloneDeep from 'lodash/cloneDeep'
+import { useDispatch, useSelector } from 'react-redux'
 
-function ListColumns({
-  columns,
-  createNewColumn,
-  createNewCard,
-  deleteColumnDetails
-}) {
+function ListColumns({ columns }) {
+  const dispatch = useDispatch()
+  const board = useSelector(selectCurrentActiveBoard)
   const [openNewColumnForm, setOpenNewColumnForm] = useState(false)
   const [newColumnTitle, setNewColumnTitle] = useState('')
-
-  const addNewColumn = () => {
+  const addNewColumn = async () => {
     if (!newColumnTitle) return toast.error('Please enter column title!')
     // Truyền props ra component cha (_id.jsx) xử lý để update toàn bộ board
     // sau này gắn Redux vào sẽ có thể call API tại đây luôn vì đã có store quản lí
     const newColumnData = {
       title: newColumnTitle
     }
-    createNewColumn(newColumnData)
+    const createdColumn = await createNewColumnAPI({
+      ...newColumnData,
+      boardId: board._id
+    })
+
+    //Khi tạo column mới thì nó chưa có card nên cũng phải add một placeholder card vào để có thể kéo thả
+    createdColumn.cards = [generatePlaceholderCard(createdColumn)]
+    createdColumn.cardOrderIds = [generatePlaceholderCard(createdColumn)._id]
+
+    // Cập nhật lại state board
+    // Chúng ta đang tự cập nhật lại dữ liệu render phía FE thay vì gọi lại fetchDetails
+    // Điều này phụ thuộc vào spec của dự án có BE hỗ trợ trả về toàn bộ Board dù đây là đang call API create column hay card
+
+    // object is not extensible vì dù đã clone ra instance mới nhưng bản chất của việc clone là shallow copy
+    // Đụng phải tính chất rule Immutability trong Redux -> Ko đc dùng PUSH để add giá trị mới vào value redux
+    // Sử dụng Deep Clone để có một instance hoàn toàn mới (1 case chi tiết cần dùng Deep Clone)
+    // Ngoài cách cloneDeep thì có thể dủng concat() để merge -> tạo ra instance mới không liên quan đến mảng cũ
+    const newBoard = cloneDeep(board)
+    newBoard.columns.push(createdColumn)
+    newBoard.columnOrderIds.push(createdColumn._id)
+    // Cập nhật dữ liệu vào trong Redux
+    dispatch(updateCurrentActiveBoard(newBoard))
 
     toggleNewColumnForm()
     setNewColumnTitle('')
@@ -55,12 +80,7 @@ function ListColumns({
         }}
       >
         {columns?.map((column) => (
-          <Column
-            key={column._id}
-            column={column}
-            deleteColumnDetails={deleteColumnDetails}
-            createNewCard={createNewCard}
-          />
+          <Column key={column._id} column={column} />
         ))}
         {/* Add new column CTA */}
         {!openNewColumnForm ? (
