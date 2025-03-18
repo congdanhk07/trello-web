@@ -16,17 +16,17 @@ import {
 } from '~/redux/activeBoard/activeBoardSlice'
 import BoardBar from './BoardBar/BoardBar'
 import BoardContent from './BoardContent/BoardContent'
-
+import { useParams } from 'react-router-dom'
 const Board = () => {
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
+  const { boardId } = useParams()
   useEffect(() => {
     // TODO: Tạm thời hard để tập trung vào function, theo chuẩn là sẽ dủng react-router-dom để lấy boardId từ URL
-    const boardId = '67b973d1c0173810677f470c'
-
+    // const boardId = '67b973d1c0173810677f470c'
     dispatch(fetchBoardDetailsAPI(boardId))
     return () => {}
-  }, [dispatch])
+  }, [dispatch, boardId])
 
   // Gọi API và xử lí sau khi kéo thả Column hoàn thành
   const moveColumns = (dndOderredColumns) => {
