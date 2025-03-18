@@ -1,4 +1,3 @@
-// Updated by trungquandev.com's author on May 13 2023
 // Sample Eslint config for React project
 module.exports = {
   env: { browser: true, es2020: true, node: true },
@@ -6,7 +5,7 @@ module.exports = {
     'eslint:recommended',
     'plugin:react/recommended',
     'plugin:react/jsx-runtime',
-    'plugin:react-hooks/recommended',
+    'plugin:react-hooks/recommended'
   ],
   parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
   settings: { react: { version: '18.2' } },
@@ -20,8 +19,8 @@ module.exports = {
     'no-restricted-imports': [
       'error',
       {
-        patterns: ['@mui/*/*/*'],
-      },
+        patterns: ['@mui/*/*/*']
+      }
     ],
     'no-console': 1,
     'no-lonely-if': 1,
@@ -40,6 +39,6 @@ module.exports = {
     'keyword-spacing': 1,
     'comma-dangle': 1,
     'comma-spacing': 1,
-    'arrow-spacing': 1,
-  },
+    'arrow-spacing': 1
+  }
 }

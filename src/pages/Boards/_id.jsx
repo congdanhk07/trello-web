@@ -22,8 +22,6 @@ const Board = () => {
   const board = useSelector(selectCurrentActiveBoard)
   const { boardId } = useParams()
   useEffect(() => {
-    // TODO: Tạm thời hard để tập trung vào function, theo chuẩn là sẽ dủng react-router-dom để lấy boardId từ URL
-    // const boardId = '67b973d1c0173810677f470c'
     dispatch(fetchBoardDetailsAPI(boardId))
     return () => {}
   }, [dispatch, boardId])

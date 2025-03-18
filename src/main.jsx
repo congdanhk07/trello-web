@@ -12,7 +12,10 @@ import { BrowserRouter } from 'react-router-dom'
 const rootElement = document.getElementById('root')
 const root = createRoot(rootElement)
 root.render(
-  <BrowserRouter basename='/'>
+  <BrowserRouter
+    // basename là prefix phải thông qua trước khi vào website của chúng ta
+    basename='/'
+  >
     <Provider store={store}>
       <CssVarsProvider theme={theme}>
         <ConfirmProvider
