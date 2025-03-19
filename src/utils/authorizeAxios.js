@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { interceptorLoadingElements } from '~/utils/formatter'
 // Khởi tạo 1 đối tượng Axios Intance để custom và cấu hình chung cho dự án
 let authorizedAxiosInstance = axios.create()
 // Config thời gian cho 1 request : 10 phút
@@ -10,7 +11,8 @@ authorizedAxiosInstance.defaults.withCredentials = true
 // Add a request interceptor
 authorizedAxiosInstance.interceptors.request.use(
   (config) => {
-    // Do something before request is sent
+    // Kỹ thuật chặn spam click khi call API
+    interceptorLoadingElements(true)
     return config
   },
   (error) => {
@@ -22,13 +24,15 @@ authorizedAxiosInstance.interceptors.request.use(
 // Add a response interceptor
 authorizedAxiosInstance.interceptors.response.use(
   (response) => {
-    // Any status code that lie within the range of 2xx cause this function to trigger
-    // Do something with response data
+    // Kỹ thuật chặn spam click khi call API
+    interceptorLoadingElements(false)
     return response
   },
   (error) => {
     // Mọi mã lỗi từ 200 -299 sẽ là error và rơi vào đây
     // Xử lý tập trung 1 lần tại đây để hiển thị lỗi chung cho các API trả về (clean code)
+
+    interceptorLoadingElements(false)
 
     let errorMessage = error?.message
     if (error.response?.data?.message) {
