@@ -1,16 +1,17 @@
-import { Link } from 'react-router-dom'
+import LockIcon from '@mui/icons-material/Lock'
+import { Card as MuiCard } from '@mui/material'
+import Alert from '@mui/material/Alert'
+import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Avatar from '@mui/material/Avatar'
-import LockIcon from '@mui/icons-material/Lock'
-import Typography from '@mui/material/Typography'
-import { Card as MuiCard } from '@mui/material'
-import { ReactComponent as TrelloIcon } from '~/assets/trello.svg'
 import CardActions from '@mui/material/CardActions'
 import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
 import Zoom from '@mui/material/Zoom'
-import Alert from '@mui/material/Alert'
 import { useForm } from 'react-hook-form'
+import { Link, useSearchParams } from 'react-router-dom'
+import { ReactComponent as TrelloIcon } from '~/assets/trello.svg'
+import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import {
   EMAIL_RULE,
   EMAIL_RULE_MESSAGE,
@@ -18,13 +19,16 @@ import {
   PASSWORD_RULE,
   PASSWORD_RULE_MESSAGE
 } from '~/utils/validators'
-import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 function LoginForm() {
   const {
     register,
     handleSubmit,
     formState: { errors }
   } = useForm()
+  const [searchParams] = useSearchParams()
+  const registeredEmail = searchParams.get('registeredEmail')
+  const verifiedEmail = searchParams.get('verifiedEmail')
+  console.log('verifiedEmail', verifiedEmail)
   const submitLogIn = (data) => {
     console.log('data', data)
   }
@@ -57,7 +61,7 @@ function LoginForm() {
           >
             Author: TranCongDanh
           </Box>
-          {/* <Box
+          <Box
             sx={{
               marginTop: '1em',
               display: 'flex',
@@ -66,36 +70,40 @@ function LoginForm() {
               padding: '0 1em'
             }}
           >
-            <Alert
-              severity='success'
-              sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}
-            >
-              Your email&nbsp;
-              <Typography
-                variant='span'
-                sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}
+            {verifiedEmail && (
+              <Alert
+                severity='success'
+                sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}
               >
-                congdanhk07@gmail.com
-              </Typography>
-              &nbsp;has been verified.
-              <br />
-              Now you can login to enjoy our services! Have a good day!
-            </Alert>
-            <Alert
-              severity='info'
-              sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}
-            >
-              An email has been sent to&nbsp;
-              <Typography
-                variant='span'
-                sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}
+                Your email&nbsp;
+                <Typography
+                  variant='span'
+                  sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}
+                >
+                  {verifiedEmail}
+                </Typography>
+                &nbsp;has been verified.
+                <br />
+                Now you can login to enjoy our services! Have a good day!
+              </Alert>
+            )}
+            {registeredEmail && (
+              <Alert
+                severity='info'
+                sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}
               >
-                congdanhk07@gmail.com
-              </Typography>
-              <br />
-              Please check and verify your account before logging in!
-            </Alert>
-          </Box> */}
+                An email has been sent to&nbsp;
+                <Typography
+                  variant='span'
+                  sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}
+                >
+                  {registeredEmail}
+                </Typography>
+                <br />
+                Please check and verify your account before logging in!
+              </Alert>
+            )}
+          </Box>
           <Box sx={{ padding: '0 1em 1em 1em' }}>
             <Box sx={{ marginTop: '1em' }}>
               <TextField

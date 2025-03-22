@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Board from '~/pages/Boards/_id'
 import NotFound from '~/pages/404/NotFound'
 import Auth from '~/pages/Auth/Auth'
+import AccountVerification from './pages/Auth/AccountVerification'
 function App() {
   return (
     <Routes>
@@ -10,7 +11,7 @@ function App() {
         element={
           // ở đây cần replace giá trị true để nó thay thế route "/" -> route "/" sẽ không còn nằm trong history stack
           // '/other-routes' -> '/' -> '/board/:boardId'. Nếu ko có replace thì nó sẽ back về '/' trước nhưng nó vẫn sẽ đang render component /board/:boardId
-          <Navigate to='/boards/67b973d1c0173810677f470c' replace />
+          <Navigate to='/boards/67b973d1c0173810677f470c' />
         }
       />
       <Route path='/boards/:boardId' element={<Board />} />
@@ -18,6 +19,7 @@ function App() {
       {/* Authentication */}
       <Route path='/login' element={<Auth />} />
       <Route path='/register' element={<Auth />} />
+      <Route path='/account/verification' element={<AccountVerification />} />
 
       {/* 404 not found page */}
       <Route path='*' element={<NotFound />} />

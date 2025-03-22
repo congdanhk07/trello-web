@@ -1,14 +1,15 @@
-import { Box, CircularProgress } from '@mui/material'
 import Container from '@mui/material/Container'
 import cloneDeep from 'lodash/cloneDeep'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useParams } from 'react-router-dom'
 import {
   moveCardToDifferentColumnAPI,
   updateBoardDetailsAPI,
   updateColumnDetailsAPI
 } from '~/apis'
 import AppBar from '~/components/Appbar/Appbar'
+import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 import {
   fetchBoardDetailsAPI,
   selectCurrentActiveBoard,
@@ -16,7 +17,6 @@ import {
 } from '~/redux/activeBoard/activeBoardSlice'
 import BoardBar from './BoardBar/BoardBar'
 import BoardContent from './BoardContent/BoardContent'
-import { useParams } from 'react-router-dom'
 const Board = () => {
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
@@ -104,21 +104,7 @@ const Board = () => {
     })
   }
 
-  if (!board)
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          width: '100vw',
-          gap: 2
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    )
+  if (!board) return <PageLoadingSpinner />
   return (
     <Container maxWidth={false} disableGutters sx={{ height: '100vh' }}>
       <AppBar />

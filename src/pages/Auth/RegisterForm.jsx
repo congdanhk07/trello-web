@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Avatar from '@mui/material/Avatar'
@@ -19,6 +19,8 @@ import {
 } from '~/utils/validators'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { useForm } from 'react-hook-form'
+import { registerUserAPI } from '~/apis'
+import { toast } from 'react-toastify'
 
 function RegisterForm() {
   const {
@@ -27,8 +29,16 @@ function RegisterForm() {
     watch,
     formState: { errors }
   } = useForm()
+  const navigate = useNavigate()
   const submitRegister = (data) => {
-    console.log('data', data)
+    const { email, password } = data
+    toast
+      .promise(registerUserAPI({ email, password }), {
+        pending: 'Registering...'
+      })
+      .then(() => {
+        navigate(`/login?registeredEmail=${email}`)
+      })
   }
   return (
     <form onSubmit={handleSubmit(submitRegister)}>
