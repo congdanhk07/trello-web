@@ -9,9 +9,12 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Zoom from '@mui/material/Zoom'
 import { useForm } from 'react-hook-form'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { ReactComponent as TrelloIcon } from '~/assets/trello.svg'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
+import { loginUserAPI } from '~/redux/user/userSlice'
 import {
   EMAIL_RULE,
   EMAIL_RULE_MESSAGE,
@@ -25,12 +28,19 @@ function LoginForm() {
     handleSubmit,
     formState: { errors }
   } = useForm()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const registeredEmail = searchParams.get('registeredEmail')
   const verifiedEmail = searchParams.get('verifiedEmail')
   console.log('verifiedEmail', verifiedEmail)
   const submitLogIn = (data) => {
-    console.log('data', data)
+    const { email, password } = data
+    toast.promise(dispatch(loginUserAPI({ email, password })), { pending: 'Logging in ...' }).then((res) => {
+      console.log('res', res)
+      // Kiểm tra nếu như việc đăng nhập không lỗi thì mới redirect về route /
+      if (!res.error) navigate('/')
+    })
   }
   return (
     <form onSubmit={handleSubmit(submitLogIn)}>
@@ -71,15 +81,9 @@ function LoginForm() {
             }}
           >
             {verifiedEmail && (
-              <Alert
-                severity='success'
-                sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}
-              >
+              <Alert severity='success' sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}>
                 Your email&nbsp;
-                <Typography
-                  variant='span'
-                  sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}
-                >
+                <Typography variant='span' sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}>
                   {verifiedEmail}
                 </Typography>
                 &nbsp;has been verified.
@@ -88,15 +92,9 @@ function LoginForm() {
               </Alert>
             )}
             {registeredEmail && (
-              <Alert
-                severity='info'
-                sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}
-              >
+              <Alert severity='info' sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}>
                 An email has been sent to&nbsp;
-                <Typography
-                  variant='span'
-                  sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}
-                >
+                <Typography variant='span' sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}>
                   {registeredEmail}
                 </Typography>
                 <br />
@@ -143,24 +141,14 @@ function LoginForm() {
             </Box>
           </Box>
           <CardActions sx={{ padding: '0 1em 1em 1em' }}>
-            <Button
-              type='submit'
-              variant='contained'
-              color='primary'
-              size='large'
-              fullWidth
-            >
+            <Button type='submit' variant='contained' color='primary' size='large' fullWidth>
               Login
             </Button>
           </CardActions>
           <Box sx={{ padding: '0 1em 1em 1em', textAlign: 'center' }}>
             <Typography>New to Trello MERN Stack Advanced?</Typography>
             <Link to='/register' style={{ textDecoration: 'none' }}>
-              <Typography
-                sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}
-              >
-                Create account!
-              </Typography>
+              <Typography sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}>Create account!</Typography>
             </Link>
           </Box>
         </MuiCard>

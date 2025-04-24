@@ -11,15 +11,10 @@ const initialState = {
 }
 
 // Các hành động gọi API (async) và cập nhật dữ liệu vào Redux -> Dùng middleware createAsynThunk + extraReducer
-export const fetchBoardDetailsAPI = createAsyncThunk(
-  'activeBoard/fetchBoardDetailAPI',
-  async (boardId) => {
-    const res = await authorizedAxiosInstance.get(
-      `${API_ROOT}/v1/boards/${boardId}`
-    )
-    return res.data
-  }
-)
+export const fetchBoardDetailsAPI = createAsyncThunk('activeBoard/fetchBoardDetailAPI', async (boardId) => {
+  const res = await authorizedAxiosInstance.get(`${API_ROOT}/v1/boards/${boardId}`)
+  return res.data
+})
 
 // Khởi tạo một slice trong kho lưu trữ - Redux Store
 export const activeBoardSlice = createSlice({
@@ -64,8 +59,7 @@ export const activeBoardSlice = createSlice({
 export const { updateCurrentActiveBoard } = activeBoardSlice.actions
 
 // Selector: là nơi dành cho các component gọi bằng hook useSelector() để lấy dữ liệu từ store
-export const selectCurrentActiveBoard = (state) =>
-  state.activeBoard.currentActiveBoard
+export const selectCurrentActiveBoard = (state) => state.activeBoard.currentActiveBoard
 
 // Phải export ra 1 cái Reducer (instance tạo từ createSlice)
 export const activeBoardReducer = activeBoardSlice.reducer
